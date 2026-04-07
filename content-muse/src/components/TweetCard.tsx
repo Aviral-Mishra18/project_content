@@ -39,8 +39,8 @@ const TweetCard = ({
     <Card className="border border-border shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <Badge variant="secondary" className={platformColor[tweet.platform]}>
-            {tweet.platform === "twitter" ? "X / Twitter" : tweet.platform.charAt(0).toUpperCase() + tweet.platform.slice(1)}
+          <Badge variant="secondary" className={platformColor[tweet.platform || "twitter"]}>
+            {(tweet.platform || "twitter") === "twitter" ? "X / Twitter" : (tweet.platform || "twitter").charAt(0).toUpperCase() + (tweet.platform || "twitter").slice(1)}
           </Badge>
           <span className="text-xs text-muted-foreground">{tweet.createdAt}</span>
         </div>

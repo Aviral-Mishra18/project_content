@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-// Ensure the URL always ends with /api (Render provides the base URL without /api)
+let rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Remove trailing slashes safely
+rawApiUrl = rawApiUrl.replace(/\/+$/, '');
+// Ensure it ends with /api but avoid duplicating it
 const normalizedApiUrl = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 const api = axios.create({
