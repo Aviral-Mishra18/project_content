@@ -1,0 +1,65 @@
+import { Tweet } from "@/types/tweet";
+
+export const dummyTweets: Tweet[] = [
+  {
+    id: "1",
+    hook: "Stop scrolling. Read this.",
+    text: "Most people fail at content marketing because they focus on quantity over quality. One great post beats 10 mediocre ones every time. Build trust, not noise.",
+    hashtags: ["#ContentMarketing", "#GrowthHacks", "#SocialMedia"],
+    cta: "Retweet if you agree 🔁",
+    platform: "twitter",
+    tone: "professional",
+    createdAt: "2026-04-04",
+  },
+  {
+    id: "2",
+    hook: "Your audience is waiting.",
+    text: "Here's the secret to going viral: solve a real problem in under 280 characters. People share what helps them. Be the solution, not the noise.",
+    hashtags: ["#ViralContent", "#TwitterGrowth", "#CreatorEconomy"],
+    cta: "Save this for later 📌",
+    platform: "twitter",
+    tone: "motivational",
+    createdAt: "2026-04-04",
+  },
+  {
+    id: "3",
+    hook: "The algorithm loves this.",
+    text: "Post consistently for 30 days and watch what happens. The algorithm rewards creators who show up. Your future followers are watching right now.",
+    hashtags: ["#Consistency", "#BuildInPublic", "#ContentCreator"],
+    cta: "Follow for daily tips 🚀",
+    platform: "twitter",
+    tone: "casual",
+    createdAt: "2026-04-03",
+  },
+  {
+    id: "4",
+    hook: "Unpopular opinion:",
+    text: "You don't need 10K followers to monetize your content. 500 engaged fans who trust you are worth more than 50K ghost followers. Focus on depth, not width.",
+    hashtags: ["#MonetizeContent", "#CreatorTips", "#SocialMediaStrategy"],
+    cta: "Drop a 🔥 if you agree",
+    platform: "instagram",
+    tone: "bold",
+    createdAt: "2026-04-03",
+  },
+  {
+    id: "5",
+    hook: "This changed my content game.",
+    text: "I started batching my content creation every Sunday. 2 hours = 7 days of posts. Work smarter, not harder. Your future self will thank you.",
+    hashtags: ["#ProductivityHacks", "#ContentBatching", "#SocialMediaTips"],
+    cta: "Share with a fellow creator 💡",
+    platform: "facebook",
+    tone: "friendly",
+    createdAt: "2026-04-02",
+  },
+];
+
+export const contentIdeas = [
+  "Share a behind-the-scenes look at your workflow",
+  "Create a 'myth vs reality' post about your industry",
+  "Post a quick tip thread with 5 actionable insights",
+  "Share a customer success story or testimonial",
+  "Create a poll to engage your audience",
+  "Post a 'what I learned this week' reflection",
+  "Share your top 3 tools for productivity",
+  "Create a carousel post breaking down a complex topic",
+];
