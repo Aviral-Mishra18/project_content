@@ -30,7 +30,7 @@ export const generateContent = async (req: any, res: Response) => {
       "cta": "a clear call to action"
     }`;
 
-    // Using Llama-3-70b-8192 for high-end reasoning and content quality
+    // Using Llama-3.3-70b-versatile for high-end reasoning and content quality
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
@@ -42,7 +42,7 @@ export const generateContent = async (req: any, res: Response) => {
           content: prompt
         }
       ],
-      model: "llama3-70b-8192",
+      model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 1024,
       top_p: 1,
