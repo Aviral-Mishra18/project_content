@@ -1,9 +1,16 @@
 import axios from 'axios';
 
 let rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-// Remove trailing slashes safely
+
+// 1. Remove trailing slashes
 rawApiUrl = rawApiUrl.replace(/\/+$/, '');
-// Ensure it ends with /api but avoid duplicating it
+
+// 2. Add protocol if missing (prevents relative path issues)
+if (!rawApiUrl.startsWith('http')) {
+  rawApiUrl = `https://${rawApiUrl}`;
+}
+
+// 3. Ensure it ends with /api but avoid duplicating it
 const normalizedApiUrl = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 const api = axios.create({
