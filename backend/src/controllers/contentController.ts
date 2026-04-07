@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import Content from '../models/Content.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
@@ -11,58 +11,53 @@ export const generateContent = async (req: any, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' }) as any;
 
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is missing from environment variables.");
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error("GROQ_API_KEY is missing from environment variables.");
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // Upgraded to Gemini 2.5 Flash-Lite as authorized by your key
-    const model = genAI.getGenerativeModel(
-      { 
-        model: "gemini-2.5-flash-lite", 
-        generationConfig: { 
-          temperature: 0.7,
-        },
-        safetySettings: [
-          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        ]
-      },
-      { apiVersion: 'v1' }
-    );
+    const groq = new Groq({ apiKey });
 
     const prompt = `You are a world-class social media strategist.
     Generate a high-engaging ${platform} post about ${topic}. Tone: ${persona}. 
-    IMPORTANT: Provide ONLY the JSON object. No other text.
+    IMPORTANT: Provide ONLY the JSON object. No other text or markdown decorators.
+    
+    Structure:
     {
       "hook": "a catchy opening line",
-      "text": "the main body of the post",
+      "content": "the main body of the post",
       "hashtags": ["list", "of", "hashtags"],
       "cta": "a clear call to action"
     }`;
 
-    const resultGemini = await model.generateContent(prompt);
-    const response = resultGemini.response;
-    
-    if (response.promptFeedback?.blockReason) {
-      throw new Error(`Content Blocked: ${response.promptFeedback.blockReason}`);
-    }
+    // Using Llama-3-70b-8192 for high-end reasoning and content quality
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a specialized AI social media copywriter. You always output valid, parseable JSON without any markdown formatting wrappers."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      model: "llama3-70b-8192",
+      temperature: 0.7,
+      max_tokens: 1024,
+      top_p: 1,
+      stream: false,
+      response_format: { type: "json_object" }
+    });
 
-    let text = response.text();
-    
-    // Robust parsing: strip markdown code blocks if the AI includes them
-    if (text.includes("```")) {
-      text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    }
+    const text = chatCompletion.choices[0]?.message?.content || "{}";
     
     let result;
     try {
-      result = JSON.parse(text || "{}");
+      result = JSON.parse(text);
     } catch (e) {
-      console.error("JSON Parse Error. Raw Text:", text);
-      throw new Error("AI returned malformed data. Please try again.");
+      console.error("Groq JSON Parse Error:", text);
+      throw new Error("AI engine failure: result was not valid JSON.");
     }
 
     const contentEntry = await Content.create({
@@ -70,10 +65,10 @@ export const generateContent = async (req: any, res: Response) => {
       topic,
       platform,
       persona,
-      content: result.text || result.content || "", 
-      hook: result.hook,
-      hashtags: result.hashtags,
-      cta: result.cta,
+      content: result.content || result.text || "", 
+      hook: result.hook || "",
+      hashtags: result.hashtags || [],
+      cta: result.cta || "",
     });
 
     user.generationsCount += 1;
@@ -81,11 +76,10 @@ export const generateContent = async (req: any, res: Response) => {
 
     res.status(201).json(contentEntry);
   } catch (error: any) {
-    console.error("Gemini Detailed Error:", error);
-    // Send back the specific error message to help the user debug (e.g. location, quota, or key issues)
+    console.error("Groq Engine Error:", error);
     res.status(500).json({ 
-      message: error.message || "Synthesis engine failed. Check server logs.",
-      details: error.name || "API_ERROR"
+      message: error.message || "Synthesis engine failed.",
+      details: error.name || "GROQ_API_ERROR"
     });
   }
 };
