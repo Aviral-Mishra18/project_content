@@ -40,7 +40,7 @@ const Navbar = () => {
           {isLanding && (
             <div className="flex items-center gap-6 mr-4">
               <a href="#features" className="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">Features</a>
-              <a href="#pricing" className="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">Pricing</a>
+              <Link to="/how-it-works" className="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">Neural Pipeline</Link>
             </div>
           )}
           
@@ -93,7 +93,7 @@ const Navbar = () => {
               <div className="flex flex-col gap-4 border-b border-border/50 pb-6">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Product</p>
                 <a href="#features" className="text-xl font-bold text-foreground" onClick={() => setMobileOpen(false)}>Features</a>
-                <a href="#pricing" className="text-xl font-bold text-foreground" onClick={() => setMobileOpen(false)}>Pricing</a>
+                <Link to="/how-it-works" className="text-xl font-bold text-foreground" onClick={() => setMobileOpen(false)}>Neural Pipeline</Link>
               </div>
             )}
             

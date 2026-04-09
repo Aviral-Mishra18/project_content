@@ -4,7 +4,8 @@ import SectionHeading from "@/components/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { ShieldCheck, Zap, BarChart3, Database, Activity, TrendingUp, Flame, Lightbulb, User as UserIcon } from "lucide-react";
+import { ShieldCheck, Zap, BarChart3, Database, Activity, TrendingUp, Flame, Lightbulb, User as UserIcon, Download } from "lucide-react";
+import { UserProfile } from "@/types/tweet";
 import api from "@/lib/api";
 
 const AI_TIPS = [
@@ -21,7 +22,7 @@ const STREAK_DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
 const Profile = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const dailyTip = useMemo(() => {
@@ -60,6 +61,21 @@ const Profile = () => {
   const circumference = 2 * Math.PI * 42;
   const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
 
+  const handleExport = async () => {
+    try {
+      const { data } = await api.get('/content/all');
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `contentmuse-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      console.error("Export failed");
+    }
+  };
+
   return (
     <DashboardLayout>
       <SectionHeading title="Muse Identity" subtitle="Manage your tactical credentials and account performance." />
@@ -91,14 +107,14 @@ const Profile = () => {
               <div className="p-6 rounded-2xl bg-muted/30 border border-border/50 hover:border-primary/30 transition-all group">
                 <div className="flex items-center justify-between mb-4">
                   <Zap className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                  <span className="text-2xl font-black">{stats?.generationsCount || 0}</span>
+                  <span className="text-2xl font-black">{loading ? '...' : stats?.generationsCount || 0}</span>
                 </div>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Syntheses</p>
               </div>
               <div className="p-6 rounded-2xl bg-muted/30 border border-border/50 hover:border-primary/30 transition-all group">
                 <div className="flex items-center justify-between mb-4">
                   <Database className="h-5 w-5 text-purple-500 group-hover:scale-110 transition-transform" />
-                  <span className="text-2xl font-black">{stats?.totalSaved || 0}</span>
+                  <span className="text-2xl font-black">{loading ? '...' : stats?.totalSaved || 0}</span>
                 </div>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Archived in Vault</p>
               </div>
@@ -141,9 +157,7 @@ const Profile = () => {
               <div className="flex items-center justify-center mb-6">
                 <div className="relative">
                   <svg width="108" height="108" viewBox="0 0 108 108" className="transform -rotate-90">
-                    {/* Track */}
                     <circle cx="54" cy="54" r="42" stroke="currentColor" strokeWidth="6" fill="none" className="text-border/30" />
-                    {/* Progress */}
                     <circle
                       cx="54" cy="54" r="42"
                       stroke="url(#pulseGradient)"
@@ -237,8 +251,12 @@ const Profile = () => {
               <Button variant="outline" className="w-full h-10 rounded-xl border-border/50 font-bold hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all">
                 Reset Brand Brain
               </Button>
-              <Button variant="ghost" className="w-full h-10 rounded-xl text-muted-foreground font-bold">
-                Download Archives (JSON)
+              <Button
+                variant="ghost"
+                className="w-full h-10 rounded-xl text-muted-foreground font-bold gap-2"
+                onClick={handleExport}
+              >
+                <Download className="h-4 w-4" /> Export Archives (JSON)
               </Button>
             </div>
           </Card>

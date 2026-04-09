@@ -1,0 +1,50 @@
+name: ContentMuse CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+
+    # Backend
+    - name: Install backend dependencies
+      run: cd backend && npm ci
+
+    - name: Build backend
+      run: cd backend && npm run build --if-present
+
+    # Frontend
+    - name: Install frontend dependencies
+      run: cd content-muse && npm ci
+
+    - name: Lint frontend
+      run: cd content-muse && npm run lint
+
+    - name: Build frontend
+      run: cd content-muse && npm run build
+
+    # Test
+    - name: Run frontend tests
+      run: cd content-muse && npm test -- --run
+
+    # Optional: Basic security audit
+    - name: Security audit
+      run: npm audit --audit-level=high

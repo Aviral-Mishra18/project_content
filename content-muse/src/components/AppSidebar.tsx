@@ -22,8 +22,8 @@ const AppSidebar = () => {
                 to={item.to}
                 className={({ isActive }) => cn(
                   "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all duration-300 group",
-                  isActive 
-                    ? "bg-primary text-white shadow-lg shadow-primary/20 font-bold" 
+                  isActive
+                    ? "bg-primary text-white shadow-lg shadow-primary/20 font-bold"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
